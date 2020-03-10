@@ -4,6 +4,7 @@ tracktor:
   frame_split:
   - 0.0
   - 1.0
+  gpu: '0'
   interpolate: false
   module_name: MOT17
   name: Tracktor++
@@ -31,5 +32,5 @@ tracktor:
     reid_sim_threshold: 2.0
     termination_eps: 0.001
     warp_mode: cv2.MOTION_EUCLIDEAN
-  video_filename: 2019-12-22-095959_L2-J34_hopson.mp4
+  video_filename: 2019-12-22-192633_L2-J29_hopson.mp4
   write_images: false

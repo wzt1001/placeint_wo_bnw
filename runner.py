@@ -34,7 +34,7 @@ con, cur = connect_to_db(user=config['db']['user'], pwd="placeint",
                 host=config['db']['host'], 
                 port=5432, db="placeint")
 
-def main(gpu)
+def main(gpu):
 
     for object in bucket.objects.all():
 
@@ -79,7 +79,7 @@ def main(gpu)
 
             if cur.fetchone()[0] == 0:
                 print('adding row to processing table')
-                insert_record = pd.DataFrame({'filename': basename, 'client_id': client_id, 'ts_start': ts_start, 
+                insert_record = pd.DataFrame({'filename': basename, 'client_id': client_id, 'camera_id': camera_id, 'ts_start': ts_start, 
                                 'duration': int(duration), 'step_0_detecting_and_tracking': 0, 
                                 'step_1_gaze_estimation': 0, 'step_2_classification': 0,
                                 'step_3_kpi': 0}, index=[0])
@@ -97,7 +97,7 @@ def main(gpu)
             # =   check if already ran
             # ==========================
 
-            query = '''SELECT COUNT(*) FROM public.processes WHERE filename = '%s' AND %s > 0''' % (basename, 'step_0_detecting_and_tracking')
+            query = '''SELECT COUNT(*) FROM public.processes WHERE filename = '%s' AND "%s" > 0''' % (basename, 'step_0_detecting_and_tracking')
             cur.execute(query)
             con.commit()
             if cur.fetchone()[0] >= 1:
@@ -142,11 +142,11 @@ def main(gpu)
             # Get return code from process
             return_code = p.returncode
 
-            if bool(return_code) == False:
-                assert 0
+            # if bool(return_code) == False:
+            #     assert 0
 
-            else:
-                print("--- completed")
+            # else:
+            print("--- completed with code %s" % return_code)
 
             query = '''UPDATE public.processes SET %s = 30 WHERE filename = '%s' ''' % ('step_0_detecting_and_tracking', basename)
             cur.execute(query)
@@ -156,5 +156,5 @@ def main(gpu)
     
 if __name__ == '__main__':
     gpu = sys.argv[1]
-    main()
+    main(gpu)
     

@@ -55,6 +55,7 @@ ex.add_config('experiments/cfgs/tracktor.yaml')
 ex.add_config(ex.configurations[0]._conf['tracktor']['reid_config'])
 ex.add_named_config('oracle', 'experiments/cfgs/oracle_tracktor.yaml')
 
+
 def reorder_df_object_wise(tracking_df):
     person_df = pd.DataFrame(columns=['person_id', 'start_frame', 'end_frame', 'start_time', 
                                      'end_time', 'frames', 'trajectory', 'bbx', 'head_bbx'])
@@ -83,6 +84,9 @@ def reorder_df_object_wise(tracking_df):
 
 @ex.automain
 def main(tracktor, reid, _config, _log, _run):
+    
+    gpu = tracktor
+    torch.cuda.set_device(int(tracktor['gpu']))
 
     video_filename = tracktor['video_filename']
     ts_start, file_size, byte_per_sec, duration, camera_id, floor_id = parse_hopson_one(tracktor['video_filename'])
@@ -195,7 +199,6 @@ def main(tracktor, reid, _config, _log, _run):
     time_total = 0
     num_frames = 0
     mot_accums = []
-    print(mark_data.keys())
     video_loader = GeneralVideoDataset(video_path, channels=3, batch_size=batch_size,
                                         fps=fps, frames_per_detect=frames_per_detect, effective_zone=mark_data[camera_id + '.png']["effective"])
 
@@ -210,7 +213,8 @@ def main(tracktor, reid, _config, _log, _run):
         if valid == False:
             break
         # tracker.reset()
-
+        print("processing frist batch")
+        
         start = time.time()
 
         # logging.info(f"Tracking: {len(seq)}")
@@ -222,7 +226,6 @@ def main(tracktor, reid, _config, _log, _run):
 
         results = tracker.get_results()
         if bool(results):
-            print('tracking....')
             for i, frame in enumerate(data_loader):
                 frame_idx = i + k - batch_size
                 # hash the identities
